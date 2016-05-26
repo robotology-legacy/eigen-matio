@@ -182,6 +182,11 @@ public:
     return 0;
   }
 
+  mat_t* getFile(void)
+  {
+     return _file;
+  }
+
   // \TODO:
   //Mat_LogInit( const char *prog_name )
   //Mat_LogClose( void )
@@ -286,7 +291,6 @@ public:
      if (var->rank != 2) {
        std::cout << "read_mat() can only read rank-2 matrices: '" << var->name << "':\n ";
        Mat_VarPrint(var, 0);
-       Mat_VarFree(var);
      }
 
      if (static_cast<bool>(var->isComplex) != static_cast<bool>(NumTraits<typename Derived::Scalar>::IsComplex)) {
