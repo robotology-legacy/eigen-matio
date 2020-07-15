@@ -6,7 +6,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 #include <iostream>
-#include <MATio/MATio.hpp>
+#include <EigenMatio/EigenMatio.hpp>
 
 using namespace Eigen;
 
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
    {
       MatrixXd matrix;
       file.read_mat(var_name.c_str(), matrix);
-      std::cout << "--------" << std::endl << var_name << std::endl << matrix << std::endl; 
+      std::cout << "--------" << std::endl << var_name << std::endl << matrix << std::endl;
    }
 
    // Read and print the complex matrices
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
    {
       Matrix<std::complex<double>, Dynamic, Dynamic> matrix;
       file.read_mat(var_name.c_str(), matrix);
-      std::cout << "--------" << std::endl << var_name << std::endl << matrix << std::endl; 
+      std::cout << "--------" << std::endl << var_name << std::endl << matrix << std::endl;
    }
 
 

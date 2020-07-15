@@ -3,6 +3,8 @@
 Eigen matrices to/from matlab data files, using the ['matio'](http://sourceforge.net/projects/matio/)
 library as a backend.  It would be nice to incorporate this with Eigen someday.
 
+This is a fork of https://github.com/GiulioRomualdi/eigen-matio/tree/install_package
+
 # Usage
 there are two interfaces: 
 - a MatioFile() class
