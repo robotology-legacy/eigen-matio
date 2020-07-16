@@ -12,6 +12,7 @@
 #define EIGEN_MATIO_MODULE
 
 #include "matio.h"
+#include <complex>
 #ifndef MATIO_VERSION
 #define MATIO_VERSION (MATIO_MAJOR_VERSION * 100 + MATIO_MINOR_VERSION * 10 + MATIO_RELEASE_LEVEL)
 #endif
@@ -282,7 +283,7 @@ public:
    template <class Derived>
    int
    read_mat(matvar_t * var, Derived & matrix)
-   { 
+   {
      if (NULL == var) {
        std::cout << "null pointer\n";
        return -1;
@@ -333,7 +334,7 @@ public:
   template <class Derived>
   int
   read_mat(const char * matname, Derived & matrix)
-  { 
+  {
     if (_written)
       reopen();
     if (!_file || !matname) {
