@@ -18,7 +18,7 @@ int main(int argc, char** argv)
    (void) argv;
 
    // Open test.mat
-   Eigen::MatioFile file(getAbsDirPath("test.mat").c_str(), MAT_ACC_RDONLY, false);
+   Eigen::MatioFile file(getAbsDirPath("test.mat"), MAT_ACC_RDONLY, false);
 
    // Read & print the real matrices
    const std::vector<std::string> read_reals{"r14", "r41", "r42"};

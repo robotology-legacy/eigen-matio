@@ -13,6 +13,10 @@
 
 #include "matio.h"
 #include <complex>
+#include <iostream>
+#include <Eigen/Core>
+#include <string>
+
 #ifndef MATIO_VERSION
 #define MATIO_VERSION (MATIO_MAJOR_VERSION * 100 + MATIO_MINOR_VERSION * 10 + MATIO_RELEASE_LEVEL)
 #endif
@@ -120,44 +124,46 @@ private:
 
 public:
   MatioFile() : _file(NULL), _ft(MAT_FT_DEFAULT), _mode(0), _written(false) {}
-  MatioFile(const char * filename,
+
+  MatioFile(const std::string& filename,
             int mode = MAT_ACC_RDWR,
             bool create = true,
             mat_ft fileversion = MAT_FT_DEFAULT,
-            const char * header = "MatioFile")
+            const std::string& header = "MatioFile")
     : _file(NULL), _ft(MAT_FT_DEFAULT), _mode(0), _written(false)
   {
     //Mat_LogInit("hi");
     open(filename, mode, create, fileversion, header);
   }
+
   ~MatioFile()
   {
     close();
   }
   mat_t * file() { return _file; }
-  int open(const char * filename,
+  bool open(const std::string& filename,
            int mode = MAT_ACC_RDWR,
            bool create = true,
            mat_ft fileversion = MAT_FT_DEFAULT,
-           const char * header = "MatioFile")
+           const std::string& header = "MatioFile")
   {
     if (_file)
       close();
-    _file = Mat_Open(filename, mode);
+    _file = Mat_Open(filename.c_str(), mode);
     if (_file == NULL && create && mode != MAT_ACC_RDONLY) {
 #if MATIO_VERSION >= 150
-      _file = Mat_CreateVer(filename, header, fileversion);
+      _file = Mat_CreateVer(filename.c_str(), header.c_str(), fileversion);
 #else
-      _file = Mat_Create(filename, header);
+      _file = Mat_Create(filename.c_str(), header.c_str());
 #endif
     }
     if (NULL == _file) {
       std::cout << "MatioFile::open() unable to open " << filename << "/" << fileversion << "\n";
-      return -1;
+      return false;
     }
     _mode = mode;
     _ft = fileversion;
-    return 0;
+    return true;
   }
 
   void close()
@@ -168,7 +174,7 @@ public:
   }
 
   // in case reading something after writing it (fflush / fsync would be better)
-  int reopen()
+  bool reopen()
   {
     if (_file) {
       std::string filename = Mat_GetFilename(_file);
@@ -176,14 +182,14 @@ public:
       _file = Mat_Open(filename.c_str(), _mode);
       if (NULL == _file) {
         std::cout << "MatioFile() unable to reopen '" << filename << "'\n";
-        return -1;
+        return false;
       }
       _written = false;
     }
-    return 0;
+    return true;
   }
 
-  mat_t* getFile(void)
+  mat_t* getFile()
   {
      return _file;
   }
@@ -196,9 +202,9 @@ public:
 
   template <class Derived, matio_compression compression = MAT_COMPRESSION_NONE>
   int
-  write_mat(const char * matname, const Derived & matrix)
+  write_mat(const std::string&  matname, const Derived & matrix)
   {
-    if (!_file || !matname) {
+    if (!_file || matname.empty()) {
       std::cout << "MatioFile.write_mat() unable to write matrix '" << matname << "'\n";
       return -1;
     }
@@ -239,7 +245,7 @@ public:
       data = dst_re.data();
     }
 
-    var = Mat_VarCreate(matname, cid, tid, 2, dims, data, cxflag);
+    var = Mat_VarCreate(matname.c_str(), cid, tid, 2, dims, data, cxflag);
     if (NULL == var) {
       std::cout << "write_mat() unable to create matrix\n";
       return -1;
@@ -333,16 +339,16 @@ public:
 
   template <class Derived>
   int
-  read_mat(const char * matname, Derived & matrix)
+  read_mat(const std::string&  matname, Derived & matrix)
   {
     if (_written)
       reopen();
-    if (!_file || !matname) {
+    if (!_file || matname.empty()) {
       std::cout << "MatioFile.read_mat() unable to read file for matrix '" << matname << "'\n";
       return -1;
     }
 
-    matvar_t * var = Mat_VarRead(_file, matname);
+    matvar_t * var = Mat_VarRead(_file, matname.c_str());
     if (var){
        int rez = read_mat(var, matrix);
        Mat_VarFree(var);
@@ -357,7 +363,7 @@ public:
 
 template <class Derived, matio_compression compression = MAT_COMPRESSION_NONE>
 int
-write_mat(const char * filename, const char * matname, const Derived & matrix)
+write_mat(const std::string&  filename, const std::string&  matname, const Derived & matrix)
 {
   MatioFile file(filename);
   return file.write_mat<Derived, compression>(matname, matrix);
@@ -365,7 +371,7 @@ write_mat(const char * filename, const char * matname, const Derived & matrix)
 
 template <class Derived>
 int
-read_mat(const char * filename, const char * matname, Derived & matrix)
+read_mat(const std::string&  filename, const std::string&  matname, Derived & matrix)
 {
   MatioFile file(filename, MAT_ACC_RDONLY, false);
   return file.read_mat(matname, matrix);
